@@ -4,8 +4,6 @@
 
 APlanetGenerator::APlanetGenerator()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	ShapeGenerator = CreateDefaultSubobject<UShapeGenerator>(TEXT("ShapeGenerator"));
 	RootComponent = Root;
@@ -30,12 +28,13 @@ void APlanetGenerator::BeginPlay()
 	GenerateCubeMesh();
 }
 
-void APlanetGenerator::Tick(float DeltaTime)
+void APlanetGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::Tick(DeltaTime);
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	GenerateCubeMesh();
 }
 
-void APlanetGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void APlanetGenerator::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	GenerateCubeMesh();
