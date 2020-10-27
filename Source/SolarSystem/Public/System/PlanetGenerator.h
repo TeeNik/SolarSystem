@@ -31,10 +31,14 @@ protected:
 	void GenerateCubeMesh();
 
 	UPROPERTY(EditDefaultsOnly)
+	float Radius = 100;
+	UPROPERTY(EditDefaultsOnly)
 	int Resolution = 4;
+	UPROPERTY(EditDefaultsOnly)
+	FLinearColor Color;
+	UPROPERTY(EditDefaultsOnly)
+	class UMaterialInterface* Material;
 
-	//FVector localUp;
-	//FVector axisA;
-	//FVector axisB;
+	class UNoiseGenerator* Noise;
 
 };
