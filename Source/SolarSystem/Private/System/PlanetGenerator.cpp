@@ -1,4 +1,5 @@
 #include "System/PlanetGenerator.h"
+#include "PlanetGeneration/ShapeGenerator.h"
 #include "PlanetGeneration/NoiseGenerator.h"
 
 APlanetGenerator::APlanetGenerator()
@@ -6,6 +7,7 @@ APlanetGenerator::APlanetGenerator()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	ShapeGenerator = CreateDefaultSubobject<UShapeGenerator>(TEXT("ShapeGenerator"));
 	RootComponent = Root;
 
 	FName names[] = { TEXT("Mesh1"), TEXT("Mesh2"), TEXT("Mesh3"), TEXT("Mesh4"), TEXT("Mesh5"), TEXT("Mesh6") };
@@ -33,6 +35,12 @@ void APlanetGenerator::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void APlanetGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	GenerateCubeMesh();
+}
+
 void APlanetGenerator::AddTriangle(int32 V1, int32 V2, int32 V3)
 {
 	Triangles.Add(V1);
@@ -50,6 +58,7 @@ void APlanetGenerator::GenerateCubeMesh()
 	for (int j = 0; j < Meshes.Num(); ++j)
 	{
 		UProceduralMeshComponent* mesh = Meshes[j];
+		mesh->ClearAllMeshSections();
 		FVector localUp = directions[j];
 		FVector axisA = FVector(localUp.Y, localUp.Z, localUp.X);
 		FVector axisB = FVector::CrossProduct(localUp, axisA);
@@ -70,8 +79,7 @@ void APlanetGenerator::GenerateCubeMesh()
 				FVector pointOnCube = localUp + (percent.X - .5f) * 2 * axisA + (percent.Y - .5f) * 2 * axisB;
 				FVector pointOnUnitSphere = pointOnCube;
 				pointOnUnitSphere.Normalize();
-				float elevation = 1 + Noise->Evaluate(pointOnUnitSphere);
-				Vertices[i] = pointOnUnitSphere * Radius * elevation;
+				Vertices[i] = ShapeGenerator->CalculatePointOnSphere(pointOnUnitSphere);
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
@@ -91,4 +99,7 @@ void APlanetGenerator::GenerateCubeMesh()
 		mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, TArray<FVector>(), TArray<FVector2D>(), VertexColors, TArray<FProcMeshTangent>(), true);
 		mesh->SetMaterial(0, Material);
 	}
+
+	++NumOfGenerations;
+	UE_LOG(LogTemp, Log, TEXT("NumOfGenerations: %d"), NumOfGenerations);
 }

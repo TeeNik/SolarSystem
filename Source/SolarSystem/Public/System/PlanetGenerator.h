@@ -5,6 +5,8 @@
 #include "ProceduralMeshComponent.h"
 #include "PlanetGenerator.generated.h"
 
+class UShapeGenerator;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOLARSYSTEM_API APlanetGenerator : public AActor
 {
@@ -17,22 +19,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<UProceduralMeshComponent*> Meshes; //CustomMesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;
-
-
-	TArray<FVector>  Vertices;
-	TArray<int32>  Triangles;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UShapeGenerator* ShapeGenerator;
 
 	void AddTriangle(int32 V1, int32 V2, int32 V3);
 	void GenerateCubeMesh();
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	float Radius = 100;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	int Resolution = 4;
 	UPROPERTY(EditDefaultsOnly)
 	FLinearColor Color;
@@ -40,5 +41,10 @@ protected:
 	class UMaterialInterface* Material;
 
 	class UNoiseGenerator* Noise;
+
+private:
+	int NumOfGenerations;
+	TArray<FVector>  Vertices;
+	TArray<int32>  Triangles;
 
 };
