@@ -18,7 +18,7 @@ public:
 
 	const static int SourceSize = 256;
 
-	//UPROPERTY()
+	UPROPERTY()
 	int Source[SourceSize] = {
 			151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142,
 			8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203,
@@ -37,9 +37,8 @@ public:
 	const int RandomSize = 256;
 	const double Sqrt3 = 1.7320508075688772935;
 	const double Sqrt5 = 2.2360679774997896964;
-	//int* _random;
 
-	//UPROPERTY()
+	UPROPERTY()
 	int _random[SourceSize * 2];
 
 	/// Skewing and unskewing factors for 2D, 3D and 4D, 
@@ -235,9 +234,10 @@ public:
 			}
 		} catch(...)
 		{
+			UE_LOG(LogTemp, Log, TEXT("Exception\n"));
 			for(int b = 0; b < 512; ++b)
 			{
-				printf("%d\n", _random[b]);
+				UE_LOG(LogTemp, Log, TEXT("%d"), _random[b]);
 			}
 		}
 

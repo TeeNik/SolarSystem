@@ -17,7 +17,7 @@ public:
 	float Evaluate(FVector point);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	FNoiseSettings NoiseSettings;
 
 	UNoiseGenerator* Noise;
