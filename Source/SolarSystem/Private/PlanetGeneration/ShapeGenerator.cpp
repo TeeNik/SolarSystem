@@ -9,6 +9,11 @@ void UShapeGenerator::BeginPlay()
 	Super::BeginPlay();
 }
 
+void UShapeGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	
+}
+
 FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 {
 	float firstLayerValue = 0;
@@ -23,7 +28,8 @@ FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 		//}
 	}
 
-	for (int i = 1; i < NoiseAdjustments.Num(); i++)
+	//for (int i = 1; i < NoiseAdjustments.Num(); i++)
+	for (int i = 0; i < NoiseAdjustments.Num(); i++)
 	{
 		//if (settings.noiseLayers[i].enabled)
 		//{
