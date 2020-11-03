@@ -1,4 +1,5 @@
 #include "PlanetGeneration/ShapeGenerator.h"
+#include "PlanetGeneration/PlanetGenerator.h"
 
 UShapeGenerator::UShapeGenerator()
 {
@@ -11,7 +12,8 @@ void UShapeGenerator::BeginPlay()
 
 void UShapeGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	
+	APlanetGenerator* planet = Cast<APlanetGenerator>(GetOwner());
+	planet->GenerateCubeMesh();
 }
 
 FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)

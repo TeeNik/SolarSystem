@@ -18,6 +18,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(EditAnywhere)
 	TArray<FNoiseAdjustment> NoiseAdjustments;

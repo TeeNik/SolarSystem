@@ -19,7 +19,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<UProceduralMeshComponent*> Meshes;
@@ -34,8 +33,6 @@ protected:
 
 	void AddTriangle(int32 V1, int32 V2, int32 V3);
 
-	UPROPERTY(EditAnywhere)
-	float Radius = 100;
 	UPROPERTY(EditAnywhere)
 	int Resolution = 4;
 	UPROPERTY(EditDefaultsOnly)
