@@ -14,7 +14,7 @@ class SOLARSYSTEM_API APlanetGenerator : public AActor
 
 public:	
 	APlanetGenerator();
-
+	void GenerateCubeMesh();
 
 protected:
 	virtual void BeginPlay() override;
@@ -22,14 +22,17 @@ protected:
 	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TArray<UProceduralMeshComponent*> Meshes; //CustomMesh;
+	TArray<UProceduralMeshComponent*> Meshes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UProceduralMeshComponent* CustomMesh;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeGenerator* ShapeGenerator;
 
 	void AddTriangle(int32 V1, int32 V2, int32 V3);
-	void GenerateCubeMesh();
 
 	UPROPERTY(EditAnywhere)
 	float Radius = 100;

@@ -1,6 +1,7 @@
-#include "System/PlanetGenerator.h"
+#include "PlanetGeneration/PlanetGenerator.h"
 #include "PlanetGeneration/ShapeGenerator.h"
 #include "PlanetGeneration/NoiseGenerator.h"
+#include "KismetProceduralMeshLibrary.h"
 
 APlanetGenerator::APlanetGenerator()
 {
@@ -66,7 +67,7 @@ void APlanetGenerator::GenerateCubeMesh()
 		Triangles.Empty();
 
 		Vertices.Init(FVector::ZeroVector, Resolution * Resolution);
-		Triangles.Init(0, (Resolution - 1) * (Resolution - 1) * 6);
+		//Triangles.Init(0, (Resolution - 1) * (Resolution - 1) * 6);
 
 		int i = 0;
 		int triIndex = 0;
@@ -82,20 +83,25 @@ void APlanetGenerator::GenerateCubeMesh()
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
-					Triangles[triIndex] = i;
-					Triangles[triIndex + 1] = i + Resolution;
-					Triangles[triIndex + 2] = i + Resolution + 1;
+					Triangles.Add(i);
+					Triangles.Add(i + Resolution);
+					Triangles.Add(i + Resolution + 1);
 
-					Triangles[triIndex + 3] = i;
-					Triangles[triIndex + 4] = i + Resolution + 1;
-					Triangles[triIndex + 5] = i + 1;
+					Triangles.Add(i);
+					Triangles.Add(i + Resolution + 1);
+					Triangles.Add(i + 1);
 					triIndex += 6;
 				}
 
 				++i;
 			}
 		}
-		mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, TArray<FVector>(), TArray<FVector2D>(), VertexColors, TArray<FProcMeshTangent>(), true);
+
+		TArray<FVector> normals;
+		TArray<FProcMeshTangent> tangents;
+
+		UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
+		mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, normals, TArray<FVector2D>(), VertexColors, tangents, true);
 		mesh->SetMaterial(0, Material);
 	}
 
