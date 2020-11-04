@@ -6,22 +6,19 @@
 APlanetGenerator::APlanetGenerator()
 {
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	ShapeGenerator = CreateDefaultSubobject<UShapeGenerator>(TEXT("ShapeGenerator"));
 	RootComponent = Root;
+	ShapeGenerator = CreateDefaultSubobject<UShapeGenerator>(TEXT("ShapeGenerator"));
+	Mesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(Root);
+	Mesh->bUseAsyncCooking = true;
+}
 
-	FName names[] = { TEXT("Mesh1"), TEXT("Mesh2"), TEXT("Mesh3"), TEXT("Mesh4"), TEXT("Mesh5"), TEXT("Mesh6") };
-
-	//for(int i = 0; i < 6; ++i)
-	//{
-	//	Meshes.Add(CreateDefaultSubobject<UProceduralMeshComponent>(names[i]));
-	//	Meshes[i]->bUseAsyncCooking = true;
-	//	Meshes[i]->SetupAttachment(Root);
-	//}
-
-	CustomMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("CustomMesh"));
-
-	Noise = NewObject<UNoiseGenerator>();
-	Noise->Randomize(0);
+void APlanetGenerator::CallMeshGeneration()
+{
+	if (ShouldRegenerate)
+	{
+		GenerateCubeMesh();
+	}
 }
 
 void APlanetGenerator::BeginPlay()
@@ -34,26 +31,33 @@ void APlanetGenerator::BeginPlay()
 void APlanetGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	GenerateCubeMesh();
+	CallMeshGeneration();
 }
 
-void APlanetGenerator::AddTriangle(int32 V1, int32 V2, int32 V3)
+int64 APlanetGenerator::GetUnixTime()
 {
-	Triangles.Add(V1);
-	Triangles.Add(V2);
-	Triangles.Add(V3);
+	FDateTime timeUtc = FDateTime::UtcNow();
+	return timeUtc.ToUnixTimestamp() * 1000 + timeUtc.GetMillisecond();
 }
 
 void APlanetGenerator::GenerateCubeMesh()
 {
+	int64 startTime = GetUnixTime();
+
 	TArray<FLinearColor> VertexColors;
-	VertexColors.Init(Color, Resolution * Resolution);
 	 
 	FVector directions[] = { FVector::UpVector, FVector::LeftVector, FVector::DownVector, FVector::RightVector, FVector::ForwardVector, FVector::BackwardVector };
 	const int NumOfDirections = 6;
 
-	Vertices.Empty();
-	Triangles.Empty();
+	Vertices.Init(FVector::ZeroVector, Resolution * Resolution * NumOfDirections);
+	Triangles.Init(0, (Resolution - 1) * (Resolution - 1) * 6 * NumOfDirections);
+	VertexColors.Init(Color, Resolution * Resolution * NumOfDirections);
+
+	int i = 0;
+	int triIndex = 0;
+
+	TArray<FVector> normals;
+	normals.Init(FVector::ZeroVector, Resolution * Resolution * NumOfDirections);
 
 	for (int j = 0; j < NumOfDirections; ++j)
 	{
@@ -61,10 +65,8 @@ void APlanetGenerator::GenerateCubeMesh()
 		FVector axisA = FVector(localUp.Y, localUp.Z, localUp.X);
 		FVector axisB = FVector::CrossProduct(localUp, axisA);
 
-		float triangleOffset = Vertices.Num();
+		float triangleOffset = 0; // Vertices.Num();
 
-		int i = 0;
-		int triIndex = 0;
 		for (int y = 0; y < Resolution; ++y)
 		{
 			for (int x = 0; x < Resolution; ++x)
@@ -73,17 +75,19 @@ void APlanetGenerator::GenerateCubeMesh()
 				FVector pointOnCube = localUp + (percent.X - .5f) * 2 * axisA + (percent.Y - .5f) * 2 * axisB;
 				FVector pointOnUnitSphere = pointOnCube;
 				pointOnUnitSphere.Normalize();
-				Vertices.Add(ShapeGenerator->CalculatePointOnSphere(pointOnUnitSphere));
+
+				Vertices[i] = (ShapeGenerator->CalculatePointOnSphere(pointOnUnitSphere));
+				normals[i] = Vertices[i];
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
-					Triangles.Add(i + triangleOffset);
-					Triangles.Add(i + Resolution + triangleOffset);
-					Triangles.Add(i + Resolution + 1 + triangleOffset);
-
-					Triangles.Add(i + triangleOffset);
-					Triangles.Add(i + Resolution + 1 + triangleOffset);
-					Triangles.Add(i + 1 + triangleOffset);
+					Triangles[triIndex] = (i + triangleOffset);
+					Triangles[triIndex + 1] = (i + Resolution + triangleOffset);
+					Triangles[triIndex + 2] = (i + Resolution + 1 + triangleOffset);
+					
+					Triangles[triIndex + 3] = (i + triangleOffset);
+					Triangles[triIndex + 4] = (i + Resolution + 1 + triangleOffset);
+					Triangles[triIndex + 5] = (i + 1 + triangleOffset);
 					triIndex += 6;
 				}
 				++i;
@@ -91,13 +95,17 @@ void APlanetGenerator::GenerateCubeMesh()
 		}
 	}
 
-	TArray<FVector> normals;
-	TArray<FProcMeshTangent> tangents;
+	UE_LOG(LogTemp, Log, TEXT("Calculating time: %d"), GetUnixTime() - startTime);
 
-	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
-	CustomMesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, normals, TArray<FVector2D>(), VertexColors, tangents, true);
-	CustomMesh->SetMaterial(0, Material);
+	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
+	UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
+
+	Mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, normals, TArray<FVector2D>(), VertexColors, TArray<FProcMeshTangent>(), true);
+	Mesh->SetMaterial(0, Material);
 
 	++NumOfGenerations;
 	UE_LOG(LogTemp, Log, TEXT("NumOfGenerations: %d"), NumOfGenerations);
+
+	int64 endTime = GetUnixTime();
+	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), endTime - startTime);
 }

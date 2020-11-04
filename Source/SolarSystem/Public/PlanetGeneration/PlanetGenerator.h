@@ -31,9 +31,9 @@ protected:
 	int Resolution = 32;
 	UPROPERTY(EditAnywhere)
 	bool ShouldRegenerate = false;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	FLinearColor Color;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* Material;
 
 private:
