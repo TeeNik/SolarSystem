@@ -18,7 +18,7 @@ public:
 
 	const static int SourceSize = 256;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	int Source[SourceSize] = {
 			151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142,
 			8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203,
@@ -38,7 +38,7 @@ public:
 	const double Sqrt3 = 1.7320508075688772935;
 	const double Sqrt5 = 2.2360679774997896964;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	int _random[SourceSize * 2];
 
 	/// Skewing and unskewing factors for 2D, 3D and 4D, 
@@ -198,50 +198,38 @@ public:
 		int jj = j & 0xff;
 		int kk = k & 0xff;
 
-		try
+		// Calculate the contribution from the four corners
+		double t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+		if (t0 > 0)
 		{
-			// Calculate the contribution from the four corners
-			double t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
-			if (t0 > 0)
-			{
-				t0 *= t0;
-				int gi0 = _random[ii + _random[jj + _random[kk]]] % 12;
-				n0 = t0 * t0 * Dot(Grad3[gi0], x0, y0, z0);
-			}
-
-			double t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
-			if (t1 > 0)
-			{
-				t1 *= t1;
-				int gi1 = _random[ii + i1 + _random[jj + j1 + _random[kk + k1]]] % 12;
-				n1 = t1 * t1 * Dot(Grad3[gi1], x1, y1, z1);
-			}
-
-			double t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
-			if (t2 > 0)
-			{
-				t2 *= t2;
-				int gi2 = _random[ii + i2 + _random[jj + j2 + _random[kk + k2]]] % 12;
-				n2 = t2 * t2 * Dot(Grad3[gi2], x2, y2, z2);
-			}
-
-			double t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
-			if (t3 > 0)
-			{
-				t3 *= t3;
-				int gi3 = _random[ii + 1 + _random[jj + 1 + _random[kk + 1]]] % 12;
-				n3 = t3 * t3 * Dot(Grad3[gi3], x3, y3, z3);
-			}
-		} catch(...)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Exception\n"));
-			for(int b = 0; b < 512; ++b)
-			{
-				UE_LOG(LogTemp, Log, TEXT("%d"), _random[b]);
-			}
+			t0 *= t0;
+			int gi0 = _random[ii + _random[jj + _random[kk]]] % 12;
+			n0 = t0 * t0 * Dot(Grad3[gi0], x0, y0, z0);
 		}
 
+		double t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+		if (t1 > 0)
+		{
+			t1 *= t1;
+			int gi1 = _random[ii + i1 + _random[jj + j1 + _random[kk + k1]]] % 12;
+			n1 = t1 * t1 * Dot(Grad3[gi1], x1, y1, z1);
+		}
 
+		double t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+		if (t2 > 0)
+		{
+			t2 *= t2;
+			int gi2 = _random[ii + i2 + _random[jj + j2 + _random[kk + k2]]] % 12;
+			n2 = t2 * t2 * Dot(Grad3[gi2], x2, y2, z2);
+		}
+
+		double t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+		if (t3 > 0)
+		{
+			t3 *= t3;
+			int gi3 = _random[ii + 1 + _random[jj + 1 + _random[kk + 1]]] % 12;
+			n3 = t3 * t3 * Dot(Grad3[gi3], x3, y3, z3);
+		}
 
 		// Add contributions from each corner to get the final noise value.
 		// The result is scaled to stay just inside [-1,1]

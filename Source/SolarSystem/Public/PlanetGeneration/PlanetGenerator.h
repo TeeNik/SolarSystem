@@ -14,37 +14,34 @@ class SOLARSYSTEM_API APlanetGenerator : public AActor
 
 public:	
 	APlanetGenerator();
-	void GenerateCubeMesh();
+	void CallMeshGeneration();
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TArray<UProceduralMeshComponent*> Meshes;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UProceduralMeshComponent* CustomMesh;
-
+	UProceduralMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeGenerator* ShapeGenerator;
 
-	void AddTriangle(int32 V1, int32 V2, int32 V3);
-
 	UPROPERTY(EditAnywhere)
-	int Resolution = 4;
+	int Resolution = 32;
+	UPROPERTY(EditAnywhere)
+	bool ShouldRegenerate = false;
 	UPROPERTY(EditDefaultsOnly)
 	FLinearColor Color;
 	UPROPERTY(EditDefaultsOnly)
 	class UMaterialInterface* Material;
-
-	class UNoiseGenerator* Noise;
 
 private:
 	int NumOfGenerations;
 	TArray<FVector>  Vertices;
 	TArray<int32>  Triangles;
 
+	int64 GetUnixTime();
+
+	void GenerateCubeMesh();
 };

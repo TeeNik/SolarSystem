@@ -5,40 +5,53 @@ UShapeGenerator::UShapeGenerator()
 {
 }
 
-void UShapeGenerator::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void UShapeGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
+	IsInited = false;
 	APlanetGenerator* planet = Cast<APlanetGenerator>(GetOwner());
-	planet->GenerateCubeMesh();
+	planet->CallMeshGeneration();
+}
+
+void UShapeGenerator::Init()
+{
+	NoiseAdjustments.Empty();
+	for (const FNoiseLayer& noiseLayer : Settings.NoiseLayers)
+	{
+		FNoiseAdjustment noiseAdjustment;
+		noiseAdjustment.SetSettings(noiseLayer.NoiseSettings);
+		NoiseAdjustments.Emplace(noiseAdjustment);
+	}
+	IsInited = true;
+	UE_LOG(LogTemp, Log, TEXT("UShapeGenerator::Init"));
 }
 
 FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 {
+	if(!IsInited)
+	{
+		Init();
+	}
+
 	float firstLayerValue = 0;
 	float elevation = 0;
 
 	if (NoiseAdjustments.Num() > 0)
 	{
 		firstLayerValue = NoiseAdjustments[0].Evaluate(pointOnUnitSphere);
-		//if (settings.noiseLayers[0].enabled)
-		//{
-		//	elevation = firstLayerValue;
-		//}
+		if (Settings.NoiseLayers[0].Enabled)
+		{
+			elevation = firstLayerValue;
+		}
 	}
 
-	//for (int i = 1; i < NoiseAdjustments.Num(); i++)
-	for (int i = 0; i < NoiseAdjustments.Num(); i++)
+	for (int i = 1; i < NoiseAdjustments.Num(); ++i)
 	{
-		//if (settings.noiseLayers[i].enabled)
-		//{
-		//	float mask = (settings.noiseLayers[i].useFirstLayerAsMask) ? firstLayerValue : 1;
-		//	elevation += noiseFilters[i].Evaluate(pointOnUnitSphere) * mask;
-		//}
+		if (Settings.NoiseLayers[i].Enabled)
+		{
+			float mask = (Settings.NoiseLayers[i].UseFirstLayerAsMask) ? firstLayerValue : 1;
+			elevation += NoiseAdjustments[i].Evaluate(pointOnUnitSphere) * mask;
+		}
 		elevation += NoiseAdjustments[i].Evaluate(pointOnUnitSphere);
 	}
-	return pointOnUnitSphere * Radius * (1 + elevation);
+	return pointOnUnitSphere * Settings.PlanetRadius * (1 + elevation);
 }

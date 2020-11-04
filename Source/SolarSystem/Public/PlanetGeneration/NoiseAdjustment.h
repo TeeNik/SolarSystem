@@ -20,5 +20,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FNoiseSettings NoiseSettings;
 
+	UPROPERTY(Transient)
 	UNoiseGenerator* Noise;
 };
