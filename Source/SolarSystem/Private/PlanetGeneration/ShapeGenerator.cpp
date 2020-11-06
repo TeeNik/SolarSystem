@@ -22,7 +22,6 @@ void UShapeGenerator::Init()
 		NoiseAdjustments.Emplace(noiseAdjustment);
 	}
 	IsInited = true;
-	UE_LOG(LogTemp, Log, TEXT("UShapeGenerator::Init"));
 }
 
 FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
@@ -51,7 +50,6 @@ FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 			float mask = (Settings.NoiseLayers[i].UseFirstLayerAsMask) ? firstLayerValue : 1;
 			elevation += NoiseAdjustments[i].Evaluate(pointOnUnitSphere) * mask;
 		}
-		elevation += NoiseAdjustments[i].Evaluate(pointOnUnitSphere);
 	}
 	return pointOnUnitSphere * Settings.PlanetRadius * (1 + elevation);
 }

@@ -8,15 +8,15 @@ struct SOLARSYSTEM_API FNoiseSettings
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	float Strength = 1;
+	float Strength;
 	UPROPERTY(EditAnywhere)
-	int NumLayers = 1;
+	int NumLayers;
 	UPROPERTY(EditAnywhere)
-	float BaseRoughness = 1;
+	float BaseRoughness;
 	UPROPERTY(EditAnywhere)
-	float Roughness = 2;
+	float Roughness;
 	UPROPERTY(EditAnywhere)
-	float Persistence = .5f;
+	float Persistence;
 	UPROPERTY(EditAnywhere)
 	FVector Centre;
 	UPROPERTY(EditAnywhere)
