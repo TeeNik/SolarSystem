@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "PlanetGeneration/NoiseSettings.h"
 #include "ShapeSettings.generated.h"
 

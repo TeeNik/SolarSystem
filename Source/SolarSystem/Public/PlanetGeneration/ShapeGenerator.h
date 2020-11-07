@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PlanetGeneration/NoiseAdjustment.h"
+#include "PlanetGeneration/NoiseFilter.h"
 #include "PlanetGeneration/ShapeSettings.h"
 #include "ShapeGenerator.generated.h"
 
@@ -25,7 +25,7 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	TArray<FNoiseAdjustment> NoiseAdjustments;
+	TArray<FNoiseFilter> NoiseFilters;
 
 	bool IsInited = false;
 	void Init();

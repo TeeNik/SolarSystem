@@ -2,6 +2,12 @@
 
 #include "NoiseSettings.generated.h"
 
+enum NoiseType
+{
+	Simple,
+	Ridged,
+};
+
 USTRUCT(BlueprintType)
 struct SOLARSYSTEM_API FNoiseSettings
 {

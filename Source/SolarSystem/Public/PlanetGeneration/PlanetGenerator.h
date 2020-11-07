@@ -37,11 +37,6 @@ protected:
 	class UMaterialInterface* Material;
 
 private:
-	int NumOfGenerations;
-	TArray<FVector>  Vertices;
-	TArray<int32>  Triangles;
-
 	int64 GetUnixTime();
-
 	void GenerateCubeMesh();
 };
