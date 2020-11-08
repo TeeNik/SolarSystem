@@ -5,13 +5,13 @@
 
 class UNoiseGenerator;
 
-USTRUCT(BlueprintType)
-struct SOLARSYSTEM_API FBaseNoiseFilter
+UCLASS()
+class SOLARSYSTEM_API UBaseNoiseFilter : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	FBaseNoiseFilter();
+	UBaseNoiseFilter();
 
 	FORCEINLINE void SetSettings(const FNoiseSettings& settings) { NoiseSettings = settings; }
 	virtual float Evaluate(const FVector& point) { return 0; }

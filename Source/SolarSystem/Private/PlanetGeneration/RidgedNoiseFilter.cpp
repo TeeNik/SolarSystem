@@ -1,7 +1,7 @@
 #include "PlanetGeneration/RidgedNoiseFilter.h"
 #include "PlanetGeneration/NoiseGenerator.h"
 
-float FRidgedNoiseFilter::Evaluate(const FVector& point)
+float URidgedNoiseFilter::Evaluate(const FVector& point)
 {
 	float noiseValue = 0;
 	float frequency = NoiseSettings.BaseRoughness;

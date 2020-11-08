@@ -1,7 +1,7 @@
 #include "PlanetGeneration/BaseNoiseFilter.h"
 #include "PlanetGeneration/NoiseGenerator.h"
 
-FBaseNoiseFilter::FBaseNoiseFilter()
+UBaseNoiseFilter::UBaseNoiseFilter()
 {
 	Noise = NewObject<UNoiseGenerator>();
 }
