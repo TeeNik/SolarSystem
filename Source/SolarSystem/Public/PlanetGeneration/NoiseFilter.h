@@ -3,8 +3,8 @@
 #include "PlanetGeneration/BaseNoiseFilter.h"
 #include "NoiseFilter.generated.h"
 
-USTRUCT(BlueprintType)
-struct SOLARSYSTEM_API FNoiseFilter : public FBaseNoiseFilter
+UCLASS()
+class SOLARSYSTEM_API UNoiseFilter : public UBaseNoiseFilter
 {
 	GENERATED_BODY()
 

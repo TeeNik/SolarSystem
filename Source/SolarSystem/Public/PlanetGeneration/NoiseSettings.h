@@ -2,7 +2,8 @@
 
 #include "NoiseSettings.generated.h"
 
-enum NoiseType
+UENUM(Blueprintable)
+enum class NoiseType : uint8
 {
 	Simple,
 	Ridged,
@@ -13,6 +14,8 @@ struct SOLARSYSTEM_API FNoiseSettings
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	NoiseType Type;
 	UPROPERTY(EditAnywhere)
 	float Strength;
 	UPROPERTY(EditAnywhere)

@@ -1,8 +1,12 @@
 #include "PlanetGeneration/ShapeGenerator.h"
 #include "PlanetGeneration/PlanetGenerator.h"
+#include "PlanetGeneration/NoiseFilterFactory.h"
 
 UShapeGenerator::UShapeGenerator()
 {
+	NoiseFilterFactory = NewObject<UNoiseFilterFactory>();
+	MinMax.Key = FLT_MAX;
+	MinMax.Value = FLT_MIN;
 }
 
 void UShapeGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -17,16 +21,32 @@ void UShapeGenerator::Init()
 	NoiseFilters.Empty();
 	for (const FNoiseLayer& noiseLayer : Settings.NoiseLayers)
 	{
-		FNoiseFilter noiseFilter;
-		noiseFilter.SetSettings(noiseLayer.NoiseSettings);
+		UBaseNoiseFilter* noiseFilter = NoiseFilterFactory->GetNoiseFilter(noiseLayer.NoiseSettings);
 		NoiseFilters.Emplace(noiseFilter);
 	}
 	IsInited = true;
 }
 
+void UShapeGenerator::AddMinMax(float value)
+{
+	if (value > MinMax.Value)
+	{
+		MinMax.Value = value;
+	}
+	if (value < MinMax.Key)
+	{
+		MinMax.Key = value;
+	}
+}
+
 FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 {
-	if(!IsInited)
+	return pointOnUnitSphere * CalculateElevation(pointOnUnitSphere);
+}
+
+float UShapeGenerator::CalculateElevation(FVector pointOnUnitSphere)
+{
+	if (!IsInited)
 	{
 		Init();
 	}
@@ -36,7 +56,7 @@ FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 
 	if (NoiseFilters.Num() > 0)
 	{
-		firstLayerValue = NoiseFilters[0].Evaluate(pointOnUnitSphere);
+		firstLayerValue = NoiseFilters[0]->Evaluate(pointOnUnitSphere);
 		if (Settings.NoiseLayers[0].Enabled)
 		{
 			elevation = firstLayerValue;
@@ -48,8 +68,10 @@ FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
 		if (Settings.NoiseLayers[i].Enabled)
 		{
 			float mask = (Settings.NoiseLayers[i].UseFirstLayerAsMask) ? firstLayerValue : 1;
-			elevation += NoiseFilters[i].Evaluate(pointOnUnitSphere) * mask;
+			elevation += NoiseFilters[i]->Evaluate(pointOnUnitSphere) * mask;
 		}
 	}
-	return pointOnUnitSphere * Settings.PlanetRadius * (1 + elevation);
+	elevation = Settings.PlanetRadius * (1 + elevation);
+	AddMinMax(elevation);
+	return elevation;
 }

@@ -16,6 +16,9 @@ public:
 	UShapeGenerator();
 
 	FVector CalculatePointOnSphere(FVector pointOnUnitSphere);
+	float CalculateElevation(FVector pointOnUnitSphere);
+
+	TPair<float, float> MinMax;
 
 protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -25,8 +28,12 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	TArray<FNoiseFilter> NoiseFilters;
+	TArray<class UBaseNoiseFilter*> NoiseFilters;
+
+	UPROPERTY(Transient)
+	class UNoiseFilterFactory* NoiseFilterFactory;
 
 	bool IsInited = false;
 	void Init();
+	void AddMinMax(float value);
 };

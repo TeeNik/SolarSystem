@@ -72,7 +72,9 @@ void APlanetGenerator::GenerateCubeMesh()
 				FVector pointOnUnitSphere = pointOnCube;
 				pointOnUnitSphere.Normalize();
 
-				vertices[i] = ShapeGenerator->CalculatePointOnSphere(pointOnUnitSphere);
+				float elevation = ShapeGenerator->CalculateElevation(pointOnUnitSphere);
+				vertices[i] = pointOnUnitSphere * elevation;
+				vertexColors[i] = FVector(elevation, 0, 0);
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
@@ -109,14 +111,22 @@ void APlanetGenerator::GenerateCubeMesh()
 	{
 		normals[x].Normalize();
 	}
-	
+
+	for (int x = 0; x < vertexColors.Num(); ++x)
+	{
+		float value = (vertexColors[x].R - ShapeGenerator->MinMax.Key) / (ShapeGenerator->MinMax.Value - ShapeGenerator->MinMax.Key);
+		vertexColors[x] = FVector(FMath::Max(value, 0.01f), 0, 0);;
+	}
 
 	//UE_LOG(LogTemp, Log, TEXT("Calculating time: %d"), GetUnixTime() - startTime);
 	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
 	//UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
 
+	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
+	dynamicMaterial->SetVectorParameterValue(TEXT("ElevationMinMax"), FVector(ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value, 0));
+
 	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, TArray<FVector2D>(), vertexColors, tangents, true);
-	Mesh->SetMaterial(0, Material);
+	Mesh->SetMaterial(0, dynamicMaterial);
 
 	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }
