@@ -6,6 +6,7 @@
 #include "PlanetGenerator.generated.h"
 
 class UShapeGenerator;
+class UColorGenerator;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOLARSYSTEM_API APlanetGenerator : public AActor
@@ -26,6 +27,8 @@ protected:
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeGenerator* ShapeGenerator;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UColorGenerator* ColorGenerator;
 
 	UPROPERTY(EditAnywhere)
 	int Resolution = 32;

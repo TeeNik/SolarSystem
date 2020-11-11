@@ -1,4 +1,5 @@
 #include "PlanetGeneration/PlanetGenerator.h"
+#include "PlanetGeneration/ColorGenerator.h"
 #include "PlanetGeneration/ShapeGenerator.h"
 #include "PlanetGeneration/NoiseGenerator.h"
 #include "KismetProceduralMeshLibrary.h"
@@ -8,6 +9,7 @@ APlanetGenerator::APlanetGenerator()
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
 	ShapeGenerator = CreateDefaultSubobject<UShapeGenerator>(TEXT("ShapeGenerator"));
+	ColorGenerator = CreateDefaultSubobject<UColorGenerator>(TEXT("ColorGenerator"));
 	Mesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
 	Mesh->bUseAsyncCooking = true;
@@ -54,7 +56,7 @@ void APlanetGenerator::GenerateCubeMesh()
 	TArray<FLinearColor> vertexColors;
 	vertexColors.Init(Color, Resolution * Resolution * NumOfDirections);
 
-	int i = 0;
+	int index = 0;
 	int triIndex = 0;
 
 	for (int j = 0; j < NumOfDirections; ++j)
@@ -73,21 +75,21 @@ void APlanetGenerator::GenerateCubeMesh()
 				pointOnUnitSphere.Normalize();
 
 				float elevation = ShapeGenerator->CalculateElevation(pointOnUnitSphere);
-				vertices[i] = pointOnUnitSphere * elevation;
-				vertexColors[i] = FVector(elevation, 0, 0);
+				vertices[index] = pointOnUnitSphere * elevation;
+				vertexColors[index] = FVector(elevation, 0, 0);
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
-					triangles[triIndex] = i;
-					triangles[triIndex + 1] = i + Resolution;
-					triangles[triIndex + 2] = i + Resolution + 1;
+					triangles[triIndex] = index;
+					triangles[triIndex + 1] = index + Resolution;
+					triangles[triIndex + 2] = index + Resolution + 1;
 					
-					triangles[triIndex + 3] = i;
-					triangles[triIndex + 4] = i + Resolution + 1;
-					triangles[triIndex + 5] = i + 1;
+					triangles[triIndex + 3] = index;
+					triangles[triIndex + 4] = index + Resolution + 1;
+					triangles[triIndex + 5] = index + 1;
 					triIndex += 6;
 				}
-				++i;
+				++index;
 			}
 		}
 	}
@@ -95,28 +97,28 @@ void APlanetGenerator::GenerateCubeMesh()
 	TArray<FVector> normals;
 	TArray<FProcMeshTangent> tangents;
 	normals.Init(FVector::ZeroVector, vertices.Num());
-	for (int x = 0; x < triangles.Num(); x += 3)
+	for (int i = 0; i < triangles.Num(); i += 3)
 	{
-		FVector v1 = vertices[triangles[x + 1]] - vertices[triangles[x]];
-		FVector v2 = vertices[triangles[x + 2]] - vertices[triangles[x]];
+		FVector v1 = vertices[triangles[i + 1]] - vertices[triangles[i]];
+		FVector v2 = vertices[triangles[i + 2]] - vertices[triangles[i]];
 		FVector faceNormal = FVector::CrossProduct(v2, v1);
 		faceNormal.Normalize();
 	
-		normals[triangles[x]] += faceNormal;
-		normals[triangles[x + 1]] += faceNormal;
-		normals[triangles[x + 2]] += faceNormal;
+		normals[triangles[i]] += faceNormal;
+		normals[triangles[i + 1]] += faceNormal;
+		normals[triangles[i + 2]] += faceNormal;
 	}
 	
-	for (int x = 0; x < normals.Num(); ++x)
+	for (int i = 0; i < normals.Num(); ++i)
 	{
-		normals[x].Normalize();
+		normals[i].Normalize();
 	}
 
-	for (int x = 0; x < vertexColors.Num(); ++x)
-	{
-		float value = (vertexColors[x].R - ShapeGenerator->MinMax.Key) / (ShapeGenerator->MinMax.Value - ShapeGenerator->MinMax.Key);
-		vertexColors[x] = FVector(FMath::Max(value, 0.01f), 0, 0);;
-	}
+	//for (int i = 0; i < vertexColors.Num(); ++i)
+	//{
+	//	float value = (vertexColors[i].R - ShapeGenerator->MinMax.Key) / (ShapeGenerator->MinMax.Value - ShapeGenerator->MinMax.Key);
+	//	vertexColors[i] = FVector(FMath::Max(value, 0.01f), 0, 0);;
+	//}
 
 	//UE_LOG(LogTemp, Log, TEXT("Calculating time: %d"), GetUnixTime() - startTime);
 	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
