@@ -4,6 +4,8 @@
 #include "PlanetGeneration/NoiseGenerator.h"
 #include "KismetProceduralMeshLibrary.h"
 
+#include "ImageUtils.h"
+
 APlanetGenerator::APlanetGenerator()
 {
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -124,8 +126,13 @@ void APlanetGenerator::GenerateCubeMesh()
 	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
 	//UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
 
+	//TArray<FColor> colors;
+	//colors.Init(FColor::Emerald, 50 * 50);
+	//UTexture2D* texture = FImageUtils::CreateTexture2D(50, 50, colors, this, TEXT("Colortexture"), EObjectFlags::RF_Dynamic, FCreateTexture2DParameters());
+
 	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	dynamicMaterial->SetVectorParameterValue(TEXT("ElevationMinMax"), FVector(ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value, 0));
+	//dynamicMaterial->SetTextureParameterValue(TEXT("Gradient"), texture);
 
 	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, TArray<FVector2D>(), vertexColors, tangents, true);
 	Mesh->SetMaterial(0, dynamicMaterial);
