@@ -20,6 +20,7 @@ float URidgedNoiseFilter::Evaluate(const FVector& point)
 		amplitude *= NoiseSettings.Persistence;
 	}
 
-	noiseValue = FMath::Max(0.0f, noiseValue - NoiseSettings.MinValue);
+	//noiseValue = FMath::Max(0.0f, noiseValue - NoiseSettings.MinValue);
+	noiseValue = noiseValue - NoiseSettings.MinValue;
 	return noiseValue * NoiseSettings.Strength;
 }

@@ -55,8 +55,8 @@ void APlanetGenerator::GenerateCubeMesh()
 	vertices.Init(FVector::ZeroVector, Resolution * Resolution * NumOfDirections);
 	TArray<int32> triangles;
 	triangles.Init(0, (Resolution - 1) * (Resolution - 1) * 6 * NumOfDirections);
-	TArray<FLinearColor> vertexColors;
-	vertexColors.Init(Color, Resolution * Resolution * NumOfDirections);
+	TArray<FVector2D> uv;
+	uv.Init(FVector2D::ZeroVector, vertices.Num());
 
 	int index = 0;
 	int triIndex = 0;
@@ -76,9 +76,11 @@ void APlanetGenerator::GenerateCubeMesh()
 				FVector pointOnUnitSphere = pointOnCube;
 				pointOnUnitSphere.Normalize();
 
-				float elevation = ShapeGenerator->CalculateElevation(pointOnUnitSphere);
-				vertices[index] = pointOnUnitSphere * elevation;
-				vertexColors[index] = FVector(elevation, 0, 0);
+				float unscaledElevation = ShapeGenerator->CalculateUnscaledElevation(pointOnUnitSphere);
+				float biomePercent = ColorGenerator->BiomePercentFromPoint(pointOnUnitSphere);
+				vertices[index] = pointOnUnitSphere * ShapeGenerator->CalculateScaledElevation(unscaledElevation);
+				//uv[index] = FVector2D(biomePercent, unscaledElevation);
+				uv[index] = FVector2D(unscaledElevation, unscaledElevation > 0 ? 1 : 0);
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
@@ -97,7 +99,6 @@ void APlanetGenerator::GenerateCubeMesh()
 	}
 
 	TArray<FVector> normals;
-	TArray<FProcMeshTangent> tangents;
 	normals.Init(FVector::ZeroVector, vertices.Num());
 	for (int i = 0; i < triangles.Num(); i += 3)
 	{
@@ -115,6 +116,12 @@ void APlanetGenerator::GenerateCubeMesh()
 	{
 		normals[i].Normalize();
 	}
+
+	for(int i = 0; i < uv.Num(); ++i)
+	{
+		UE_LOG(LogTemp, Log, TEXT("vertexColor: %f %f"), uv[i].X, uv[i].Y);
+	}
+	UE_LOG(LogTemp, Log, TEXT("MinMax: %f %f"), ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value);
 
 	//for (int i = 0; i < vertexColors.Num(); ++i)
 	//{
@@ -134,7 +141,7 @@ void APlanetGenerator::GenerateCubeMesh()
 	dynamicMaterial->SetVectorParameterValue(TEXT("ElevationMinMax"), FVector(ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value, 0));
 	//dynamicMaterial->SetTextureParameterValue(TEXT("Gradient"), texture);
 
-	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, TArray<FVector2D>(), vertexColors, tangents, true);
+	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uv, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 	Mesh->SetMaterial(0, dynamicMaterial);
 
 	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
