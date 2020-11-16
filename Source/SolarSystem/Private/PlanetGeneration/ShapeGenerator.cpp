@@ -39,12 +39,13 @@ void UShapeGenerator::AddMinMax(float value)
 	}
 }
 
-FVector UShapeGenerator::CalculatePointOnSphere(FVector pointOnUnitSphere)
+float UShapeGenerator::CalculateScaledElevation(float unscaledElevation)
 {
-	return pointOnUnitSphere * CalculateElevation(pointOnUnitSphere);
+	float elevation = FMath::Max(0.0f, unscaledElevation);
+	return Settings.PlanetRadius * (1 + elevation);
 }
 
-float UShapeGenerator::CalculateElevation(FVector pointOnUnitSphere)
+float UShapeGenerator::CalculateUnscaledElevation(FVector pointOnUnitSphere)
 {
 	if (!IsInited)
 	{
@@ -71,7 +72,6 @@ float UShapeGenerator::CalculateElevation(FVector pointOnUnitSphere)
 			elevation += NoiseFilters[i]->Evaluate(pointOnUnitSphere) * mask;
 		}
 	}
-	elevation = Settings.PlanetRadius * (1 + elevation);
 	AddMinMax(elevation);
 	return elevation;
 }

@@ -15,8 +15,8 @@ class SOLARSYSTEM_API UShapeGenerator : public UActorComponent
 public:	
 	UShapeGenerator();
 
-	FVector CalculatePointOnSphere(FVector pointOnUnitSphere);
-	float CalculateElevation(FVector pointOnUnitSphere);
+	float CalculateScaledElevation(float unscaledElevation);
+	float CalculateUnscaledElevation(FVector pointOnUnitSphere);
 
 	TPair<float, float> MinMax;
 
