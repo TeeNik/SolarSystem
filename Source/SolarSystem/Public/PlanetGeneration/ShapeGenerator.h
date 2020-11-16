@@ -36,4 +36,5 @@ private:
 	bool IsInited = false;
 	void Init();
 	void AddMinMax(float value);
+	void ResetMinMax();
 };

@@ -5,8 +5,6 @@
 UShapeGenerator::UShapeGenerator()
 {
 	NoiseFilterFactory = NewObject<UNoiseFilterFactory>();
-	MinMax.Key = FLT_MAX;
-	MinMax.Value = FLT_MIN;
 }
 
 void UShapeGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -24,7 +22,14 @@ void UShapeGenerator::Init()
 		UBaseNoiseFilter* noiseFilter = NoiseFilterFactory->GetNoiseFilter(noiseLayer.NoiseSettings);
 		NoiseFilters.Emplace(noiseFilter);
 	}
+	ResetMinMax();
 	IsInited = true;
+}
+
+void UShapeGenerator::ResetMinMax()
+{
+	MinMax.Key = FLT_MAX;
+	MinMax.Value = FLT_MIN;
 }
 
 void UShapeGenerator::AddMinMax(float value)
