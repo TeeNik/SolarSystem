@@ -16,13 +16,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Mass;
 	UPROPERTY(EditAnywhere)
-	float Radius;
-	UPROPERTY(EditAnywhere)
 	FVector InitialVelocity;
 	UPROPERTY(EditAnywhere)
 	bool ShouldDrawDebug;
-	UPROPERTY(EditAnywhere)
-	float SpeedMultiplier = 1.0f;
 
 	void UpdateVelocity(TArray<UGravityComponent*> allBodies, float deltaTime);
 	void UpdatePosition(float deltaTime);
@@ -32,5 +28,6 @@ protected:
 
 private:
 	FVector CurrentVelocity;
+	float G;
 	void DrawDebug();
 };

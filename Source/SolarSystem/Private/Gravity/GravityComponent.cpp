@@ -15,13 +15,13 @@ void UGravityComponent::BeginPlay()
 	ASolarSystemGameModeBase* GM = Cast<ASolarSystemGameModeBase>(GetWorld()->GetAuthGameMode());
 	if(GM)
 	{
+		G = GM->GetGravitationalConstant();
 		GM->RegisterGravityComponent(this);
 	}
 }
 
 void UGravityComponent::UpdateVelocity(TArray<UGravityComponent*> allBodies, float deltaTime)
 {
-	const float G = 100.0f;
 	const FVector ownerPos = GetOwner()->GetActorLocation();
 	for(UGravityComponent* otherBody : allBodies)
 	{
@@ -33,8 +33,6 @@ void UGravityComponent::UpdateVelocity(TArray<UGravityComponent*> allBodies, flo
 			forceDir.Normalize();
 			FVector force = forceDir * G * Mass * otherBody->Mass / sqrDist;
 			FVector acceleration = force / Mass;
-
-			UE_LOG(LogTemp, Log, TEXT("%s: %f %s %s %s"), *GetOwner()->GetName(), sqrDist , *forceDir.ToString(), *force.ToString(), *acceleration.ToString());
 			CurrentVelocity += acceleration * deltaTime;
 		}
 	}
@@ -43,9 +41,8 @@ void UGravityComponent::UpdateVelocity(TArray<UGravityComponent*> allBodies, flo
 void UGravityComponent::UpdatePosition(float deltaTime)
 {
 	FVector ownerPos = GetOwner()->GetActorLocation();
-	//UE_LOG(LogTemp, Log, TEXT("%s: %s"), *GetOwner()->GetName(), *CurrentVelocity.ToString());
-	GetOwner()->SetActorLocation(ownerPos + CurrentVelocity * deltaTime * SpeedMultiplier);
-
+	GetOwner()->SetActorLocation(ownerPos + CurrentVelocity * deltaTime);
+	
 	DrawDebug();
 }
 
