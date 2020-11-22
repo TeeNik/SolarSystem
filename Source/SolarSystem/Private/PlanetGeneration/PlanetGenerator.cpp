@@ -51,6 +51,9 @@ void APlanetGenerator::GenerateCubeMesh()
 	FVector directions[] = { FVector::UpVector, FVector::LeftVector, FVector::DownVector, FVector::RightVector, FVector::ForwardVector, FVector::BackwardVector };
 	const int NumOfDirections = 6;
 
+	ShapeGenerator->Init();
+	ColorGenerator->Init();
+
 	TArray<FVector> vertices;
 	vertices.Init(FVector::ZeroVector, Resolution * Resolution * NumOfDirections);
 	TArray<int32> triangles;
@@ -79,8 +82,9 @@ void APlanetGenerator::GenerateCubeMesh()
 				float unscaledElevation = ShapeGenerator->CalculateUnscaledElevation(pointOnUnitSphere);
 				float biomePercent = ColorGenerator->BiomePercentFromPoint(pointOnUnitSphere);
 				vertices[index] = pointOnUnitSphere * ShapeGenerator->CalculateScaledElevation(unscaledElevation);
-				//uv[index] = FVector2D(biomePercent, unscaledElevation);
-				uv[index] = FVector2D(unscaledElevation, unscaledElevation > 0 ? 1 : 0);
+
+				int biomeIndex = unscaledElevation > 0 ? ColorGenerator->BiomeIndexFromPoint(pointOnUnitSphere) : 0;
+				uv[index] = FVector2D(unscaledElevation, biomeIndex);
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
@@ -117,29 +121,14 @@ void APlanetGenerator::GenerateCubeMesh()
 		normals[i].Normalize();
 	}
 
-	for(int i = 0; i < uv.Num(); ++i)
-	{
-		UE_LOG(LogTemp, Log, TEXT("vertexColor: %f %f"), uv[i].X, uv[i].Y);
-	}
-	UE_LOG(LogTemp, Log, TEXT("MinMax: %f %f"), ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value);
-
-	//for (int i = 0; i < vertexColors.Num(); ++i)
-	//{
-	//	float value = (vertexColors[i].R - ShapeGenerator->MinMax.Key) / (ShapeGenerator->MinMax.Value - ShapeGenerator->MinMax.Key);
-	//	vertexColors[i] = FVector(FMath::Max(value, 0.01f), 0, 0);;
-	//}
-
 	//UE_LOG(LogTemp, Log, TEXT("Calculating time: %d"), GetUnixTime() - startTime);
 	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
 	//UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
 
-	//TArray<FColor> colors;
-	//colors.Init(FColor::Emerald, 50 * 50);
-	//UTexture2D* texture = FImageUtils::CreateTexture2D(50, 50, colors, this, TEXT("Colortexture"), EObjectFlags::RF_Dynamic, FCreateTexture2DParameters());
+	UE_LOG(LogTemp, Log, TEXT("Time spend on calculation: %d"), GetUnixTime() - startTime);
 
 	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	dynamicMaterial->SetVectorParameterValue(TEXT("ElevationMinMax"), FVector(ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value, 0));
-	//dynamicMaterial->SetTextureParameterValue(TEXT("Gradient"), texture);
 
 	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uv, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 	Mesh->SetMaterial(0, dynamicMaterial);

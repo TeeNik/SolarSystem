@@ -7,13 +7,6 @@ UShapeGenerator::UShapeGenerator()
 	NoiseFilterFactory = NewObject<UNoiseFilterFactory>();
 }
 
-void UShapeGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	IsInited = false;
-	APlanetGenerator* planet = Cast<APlanetGenerator>(GetOwner());
-	planet->CallMeshGeneration();
-}
-
 void UShapeGenerator::Init()
 {
 	NoiseFilters.Empty();
@@ -23,7 +16,6 @@ void UShapeGenerator::Init()
 		NoiseFilters.Emplace(noiseFilter);
 	}
 	ResetMinMax();
-	IsInited = true;
 }
 
 void UShapeGenerator::ResetMinMax()
@@ -52,11 +44,6 @@ float UShapeGenerator::CalculateScaledElevation(float unscaledElevation)
 
 float UShapeGenerator::CalculateUnscaledElevation(FVector pointOnUnitSphere)
 {
-	if (!IsInited)
-	{
-		Init();
-	}
-
 	float firstLayerValue = 0;
 	float elevation = 0;
 
