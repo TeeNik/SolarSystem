@@ -15,18 +15,15 @@ class SOLARSYSTEM_API UColorGenerator : public UActorComponent
 public:	
 	UColorGenerator();
 
-	UMaterialInstanceDynamic* GetPlanetMaterial();
-	void UpdateElevation(const TPair<float, float>& minMax);
-	void UpdateColors(TArray<FLinearColor>& vertexColors, const TPair<float, float>& minMax);
+	void Init();
 	float BiomePercentFromPoint(const FVector& pointOnSphere);
+	float BiomeIndexFromPoint(const FVector& pointOnSphere);
 
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY(EditAnywhere)
 	FColorSettings Settings;
-
-private:
 	UPROPERTY(Transient)
-	UMaterialInstanceDynamic* MaterialInstance;
+	class UNoiseFilterFactory* NoiseFilterFactory;
+	UPROPERTY(Transient)
+	class UBaseNoiseFilter* NoiseFilter;
 };

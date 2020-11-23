@@ -1,6 +1,15 @@
 #pragma once
-
+#include "PlanetGeneration/NoiseSettings.h"
 #include "ColorSettings.generated.h"
+
+UENUM(Blueprintable)
+enum class BiomeType : uint8
+{
+	Ocean,
+	Mountains,
+	Sand,
+	Tundra,
+};
 
 USTRUCT(BlueprintType)
 struct SOLARSYSTEM_API FBiome
@@ -8,24 +17,10 @@ struct SOLARSYSTEM_API FBiome
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	class UTexture2D* GradientTexture;
-	UPROPERTY(EditAnywhere)
-	FLinearColor Tint;
+	BiomeType BiomeType;
 	UPROPERTY(EditAnywhere, meta = (ClapmMin = "0.0", ClampMax = "1.0"))
 	float StartHeight;
-	UPROPERTY(EditAnywhere, meta = (ClapmMin = "0.0", ClampMax = "1.0"))
-	float TintPercent;
 };
-
-USTRUCT(BlueprintType)
-struct SOLARSYSTEM_API FBiomeColorSettings
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TArray<FBiome> Biomes;
-};
-
 
 USTRUCT(BlueprintType)
 struct SOLARSYSTEM_API FColorSettings
@@ -33,8 +28,11 @@ struct SOLARSYSTEM_API FColorSettings
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	class UMaterialInterface* PlanetMaterial;
+	TArray<FBiome> Biomes;
 	UPROPERTY(EditAnywhere)
-	FBiomeColorSettings BiomeColorSettings;
-
+	FNoiseSettings NoiseSettings;
+	UPROPERTY(EditAnywhere)
+	float NoiseOffset;
+	UPROPERTY(EditAnywhere)
+	float NoiseStrength;
 };

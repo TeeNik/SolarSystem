@@ -14,15 +14,14 @@ class SOLARSYSTEM_API UShapeGenerator : public UActorComponent
 
 public:	
 	UShapeGenerator();
-
+	
+	void Init();
 	float CalculateScaledElevation(float unscaledElevation);
 	float CalculateUnscaledElevation(FVector pointOnUnitSphere);
 
 	TPair<float, float> MinMax;
 
 protected:
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
 	UPROPERTY(EditAnywhere)
 	FShapeSettings Settings;
 
@@ -33,8 +32,6 @@ private:
 	UPROPERTY(Transient)
 	class UNoiseFilterFactory* NoiseFilterFactory;
 
-	bool IsInited = false;
-	void Init();
 	void AddMinMax(float value);
 	void ResetMinMax();
 };

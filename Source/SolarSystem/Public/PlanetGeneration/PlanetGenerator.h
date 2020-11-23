@@ -35,8 +35,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool ShouldRegenerate = false;
 	UPROPERTY(EditAnywhere)
-	FLinearColor Color;
-	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* Material;
 
 private:
