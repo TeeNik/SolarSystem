@@ -9,11 +9,11 @@ struct SOLARSYSTEM_API FNoiseLayer
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool Enabled = true;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool UseFirstLayerAsMask = false;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FNoiseSettings NoiseSettings;
 
 };
@@ -24,8 +24,8 @@ struct SOLARSYSTEM_API FShapeSettings
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float PlanetRadius = 1.0f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FNoiseLayer> NoiseLayers;
 };
