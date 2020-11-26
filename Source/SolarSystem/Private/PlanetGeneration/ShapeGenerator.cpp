@@ -67,3 +67,8 @@ float UShapeGenerator::CalculateUnscaledElevation(FVector pointOnUnitSphere)
 	AddMinMax(elevation);
 	return elevation;
 }
+
+void UShapeGenerator::SetSettings(const TArray<FNoiseLayer>& NoiseLayers)
+{
+	Settings.NoiseLayers = NoiseLayers;
+}

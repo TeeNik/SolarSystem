@@ -125,7 +125,7 @@ void APlanetGenerator::GenerateCubeMesh()
 	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
 	//UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
 
-	UE_LOG(LogTemp, Log, TEXT("Time spend on calculation: %d"), GetUnixTime() - startTime);
+	//UE_LOG(LogTemp, Log, TEXT("Time spend on calculation: %d"), GetUnixTime() - startTime);
 
 	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	dynamicMaterial->SetVectorParameterValue(TEXT("ElevationMinMax"), FVector(ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value, 0));
@@ -133,5 +133,5 @@ void APlanetGenerator::GenerateCubeMesh()
 	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uv, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 	Mesh->SetMaterial(0, dynamicMaterial);
 
-	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
+	//UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }

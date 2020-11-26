@@ -19,6 +19,9 @@ public:
 	float CalculateScaledElevation(float unscaledElevation);
 	float CalculateUnscaledElevation(FVector pointOnUnitSphere);
 
+	UFUNCTION(BlueprintCallable)
+	void SetSettings(const TArray<FNoiseLayer>& NoiseLayers);
+
 	TPair<float, float> MinMax;
 
 protected:

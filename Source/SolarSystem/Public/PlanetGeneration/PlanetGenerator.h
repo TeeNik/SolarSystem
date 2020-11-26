@@ -15,6 +15,8 @@ class SOLARSYSTEM_API APlanetGenerator : public AActor
 
 public:	
 	APlanetGenerator();
+
+	UFUNCTION(BlueprintCallable)
 	void CallMeshGeneration();
 
 protected:
