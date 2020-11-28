@@ -32,7 +32,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UColorGenerator* ColorGenerator;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Resolution = 32;
 	UPROPERTY(EditAnywhere)
 	bool ShouldRegenerate = false;

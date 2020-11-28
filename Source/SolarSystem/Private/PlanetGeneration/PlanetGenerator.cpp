@@ -122,7 +122,8 @@ void APlanetGenerator::GenerateCubeMesh()
 	}
 
 	//UE_LOG(LogTemp, Log, TEXT("Calculating time: %d"), GetUnixTime() - startTime);
-	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, TArray<FVector2D>(), normals, tangents);
+	//TArray<FProcMeshTangent> tangents;
+	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(vertices, triangles, TArray<FVector2D>(), normals, tangents);
 	//UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
 
 	//UE_LOG(LogTemp, Log, TEXT("Time spend on calculation: %d"), GetUnixTime() - startTime);
@@ -134,4 +135,5 @@ void APlanetGenerator::GenerateCubeMesh()
 	Mesh->SetMaterial(0, dynamicMaterial);
 
 	//UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
+	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }
