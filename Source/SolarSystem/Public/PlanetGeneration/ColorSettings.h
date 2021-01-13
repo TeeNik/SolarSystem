@@ -35,4 +35,6 @@ struct SOLARSYSTEM_API FColorSettings
 	float NoiseOffset;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float NoiseStrength;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BlendAmount;
 };

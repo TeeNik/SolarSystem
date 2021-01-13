@@ -19,6 +19,8 @@ public:
 	float BiomePercentFromPoint(const FVector& pointOnSphere);
 	float BiomeIndexFromPoint(const FVector& pointOnSphere);
 
+	FColor GetColorFromPoint(float biomeIndex, float value, float min, float max);
+
 protected:
 	UPROPERTY(EditAnywhere)
 	FColorSettings Settings;
@@ -26,4 +28,11 @@ protected:
 	class UNoiseFilterFactory* NoiseFilterFactory;
 	UPROPERTY(Transient)
 	class UBaseNoiseFilter* NoiseFilter;
+
+	UPROPERTY(EditAnywhere)
+	TArray<class UTexture2D*> BiomTextures;
+
+private:
+	TArray<FColor> BiomColors;
+	int TextureSize = 100;
 };
