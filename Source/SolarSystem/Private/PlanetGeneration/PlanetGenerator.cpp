@@ -64,6 +64,12 @@ void APlanetGenerator::GenerateCubeMesh()
 	int index = 0;
 	int triIndex = 0;
 
+
+
+
+	UE_LOG(LogTemp, Log, TEXT("Time spend for colors: %d"), GetUnixTime() - startTime);
+
+
 	for (int j = 0; j < NumOfDirections; ++j)
 	{
 		FVector localUp = directions[j];
@@ -78,6 +84,8 @@ void APlanetGenerator::GenerateCubeMesh()
 				FVector pointOnCube = localUp + (percent.X - .5f) * 2 * axisA + (percent.Y - .5f) * 2 * axisB;
 				FVector pointOnUnitSphere = pointOnCube;
 				pointOnUnitSphere.Normalize();
+
+				vertices[index] = pointOnUnitSphere;
 
 				float unscaledElevation = ShapeGenerator->CalculateUnscaledElevation(pointOnUnitSphere);
 				float biomePercent = ColorGenerator->BiomePercentFromPoint(pointOnUnitSphere);
@@ -102,6 +110,54 @@ void APlanetGenerator::GenerateCubeMesh()
 		}
 	}
 
+
+	TArray<FLinearColor> colors;
+	colors.Init(FColor::White, vertices.Num());
+
+	for (int i = 0; i < colors.Num(); ++i)
+	{
+		float biomIndex = uv[i].Y;
+		float min = biomIndex > 0 ? 0 : ShapeGenerator->MinMax.Key;
+		float max = biomIndex > 0 ? ShapeGenerator->MinMax.Value : 0;
+
+		colors[i] = ColorGenerator->GetColorFromPoint(uv[i].Y, uv[i].X, min, max);
+	}
+
+	/*
+	 	int craterIndex = 1000;
+	FVector center = vertices[craterIndex];
+	for (int i = 0; i < vertices.Num(); ++i)
+	{
+		//if(vertices[i].Z > FloorHeight)
+		//{
+		//	vertices[i].Z = FloorHeight;
+		//}
+
+		if((vertices[i] - center).Size() < CraterRadius)
+		{
+			float x = (vertices[i] - center).Size() / CraterRadius;
+			float cavity = FMath::Max(CavityShape(x), FloorShape(x));
+			float rimX = FMath::Min(x - RimWidth, 0.0f);
+			float rim = RimSteepness * rimX * rimX;
+			cavity = FMath::Min(cavity, rim);
+			vertices[i] *= cavity;
+
+
+			UE_LOG(LogTemp, Log, TEXT("x: %f"), x);
+		}
+		//if (FVector::Dist(vertices[i], center) < CraterRadius)
+		//{
+		//	float x = (vertices[i] - center).Size() / CraterRadius;
+		//	float cavity = x * x - 1;
+		//	float rimX = FMath::Min(x - 1 - RimWidth, 0.0f);
+		//	float rim = RimSteepness * rimX * rimX;
+		//
+		//	float craterShape = SmoothMax(cavity, FloorHeight, Smoothness);
+		//	vertices[i] *= SmoothMin(craterShape, rim, Smoothness);
+		//}
+	}
+	 */
+
 	TArray<FVector> normals;
 	normals.Init(FVector::ZeroVector, vertices.Num());
 	for (int i = 0; i < triangles.Num(); i += 3)
@@ -121,19 +177,11 @@ void APlanetGenerator::GenerateCubeMesh()
 		normals[i].Normalize();
 	}
 
-	//UE_LOG(LogTemp, Log, TEXT("Calculating time: %d"), GetUnixTime() - startTime);
-	//TArray<FProcMeshTangent> tangents;
-	//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(vertices, triangles, TArray<FVector2D>(), normals, tangents);
-	//UE_LOG(LogTemp, Log, TEXT("CalculateTangentsForMesh: %d"), GetUnixTime() - startTime);
-
-	//UE_LOG(LogTemp, Log, TEXT("Time spend on calculation: %d"), GetUnixTime() - startTime);
-
 	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	dynamicMaterial->SetVectorParameterValue(TEXT("ElevationMinMax"), FVector(ShapeGenerator->MinMax.Key, ShapeGenerator->MinMax.Value, 0));
 
-	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uv, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
+	Mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uv, colors, TArray<FProcMeshTangent>(), true);
 	Mesh->SetMaterial(0, dynamicMaterial);
 
-	//UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }
