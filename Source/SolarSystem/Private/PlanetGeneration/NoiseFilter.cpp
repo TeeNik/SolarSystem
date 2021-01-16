@@ -9,7 +9,9 @@ float UNoiseFilter::Evaluate(const FVector& point)
 	
 	for (int i = 0; i < NoiseSettings.NumLayers; i++)
 	{
-		float v = Noise->Evaluate(point * frequency + NoiseSettings.Centre);
+		float v = FMath::PerlinNoise3D(point * frequency + NoiseSettings.Centre);
+		
+		//float v = Noise->Evaluate(point * frequency + NoiseSettings.Centre);
 		noiseValue += (v + 1) * .5f * amplitude;
 		frequency *= NoiseSettings.Roughness;
 		amplitude *= NoiseSettings.Persistence;

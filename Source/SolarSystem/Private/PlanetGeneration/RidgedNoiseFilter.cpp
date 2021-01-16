@@ -10,7 +10,7 @@ float URidgedNoiseFilter::Evaluate(const FVector& point)
 
 	for (int i = 0; i < NoiseSettings.NumLayers; i++)
 	{
-		float v = 1 - FMath::Abs(Noise->Evaluate(point * frequency + NoiseSettings.Centre));
+		float v = 1 - FMath::Abs(FMath::PerlinNoise3D(point * frequency + NoiseSettings.Centre));
 		v *= v;
 		v *= weight;
 		weight = v;
