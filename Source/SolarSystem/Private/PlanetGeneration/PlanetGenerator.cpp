@@ -5,6 +5,7 @@
 #include "KismetProceduralMeshLibrary.h"
 
 #include "ImageUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 
 APlanetGenerator::APlanetGenerator()
 {
@@ -65,6 +66,8 @@ void APlanetGenerator::GenerateCubeMesh()
 	int triIndex = 0;
 
 
+	TArray<FVector> spherePoints;
+	spherePoints.Init(FVector::ZeroVector, vertices.Num());
 
 
 	UE_LOG(LogTemp, Log, TEXT("Time spend for colors: %d"), GetUnixTime() - startTime);
@@ -89,10 +92,25 @@ void APlanetGenerator::GenerateCubeMesh()
 
 				float unscaledElevation = ShapeGenerator->CalculateUnscaledElevation(pointOnUnitSphere);
 				float biomePercent = ColorGenerator->BiomePercentFromPoint(pointOnUnitSphere);
-				vertices[index] = pointOnUnitSphere * ShapeGenerator->CalculateScaledElevation(unscaledElevation);
+				//vertices[index] = pointOnUnitSphere * ShapeGenerator->CalculateScaledElevation(unscaledElevation);
+				vertices[index] = pointOnUnitSphere;
+
+				spherePoints[index] = pointOnUnitSphere;
+
 
 				int biomeIndex = unscaledElevation > 0 ? ColorGenerator->BiomeIndexFromPoint(pointOnUnitSphere) : 0;
 				uv[index] = FVector2D(unscaledElevation, biomeIndex);
+
+				if(Clouds.Num() > 0 && Clouds.Num() % 2 == 0)
+				{
+					float clouds = 0;
+					for (int i = 0; i < Clouds.Num(); i += 2)
+					{
+						//clouds += Clouds[i] * FMath::PerlinNoise3D(Clouds[i + 1] * pointOnUnitSphere);
+						clouds += unscaledElevation;
+					}
+					uv[index].X = clouds;
+				}
 
 				if (x != Resolution - 1 && y != Resolution - 1)
 				{
@@ -114,38 +132,32 @@ void APlanetGenerator::GenerateCubeMesh()
 	TArray<FLinearColor> colors;
 	colors.Init(FColor::White, vertices.Num());
 
-	for (int i = 0; i < colors.Num(); ++i)
-	{
-		float biomIndex = uv[i].Y;
-		float min = biomIndex > 0 ? 0 : ShapeGenerator->MinMax.Key;
-		float max = biomIndex > 0 ? ShapeGenerator->MinMax.Value : 0;
-
-		colors[i] = ColorGenerator->GetColorFromPoint(uv[i].Y, uv[i].X, min, max);
-	}
+	//for (int i = 0; i < colors.Num(); ++i)
+	//{
+	//	float biomIndex = uv[i].Y;
+	//	float min = biomIndex > 0 ? 0 : ShapeGenerator->MinMax.Key;
+	//	float max = biomIndex > 0 ? ShapeGenerator->MinMax.Value : 0;
+	//
+	//	//colors[i] = ColorGenerator->GetColorFromPoint(spherePoints[i],  uv[i].X, min, max);
+	//	colors[i] = ColorGenerator->GetColor(biomIndex,  uv[i].X, min, max);
+	//}
 
 	/*
-	 	int craterIndex = 1000;
+	int craterIndex = 500;
 	FVector center = vertices[craterIndex];
+	TArray<float> heights;
+	heights.Init(0.0f, vertices.Num());
+
 	for (int i = 0; i < vertices.Num(); ++i)
 	{
-		//if(vertices[i].Z > FloorHeight)
-		//{
-		//	vertices[i].Z = FloorHeight;
-		//}
-
-		if((vertices[i] - center).Size() < CraterRadius)
+		if(FVector::Dist(vertices[i], center) <= CraterRadius)
 		{
-			float x = (vertices[i] - center).Size() / CraterRadius;
-			float cavity = FMath::Max(CavityShape(x), FloorShape(x));
-			float rimX = FMath::Min(x - RimWidth, 0.0f);
-			float rim = RimSteepness * rimX * rimX;
-			cavity = FMath::Min(cavity, rim);
-			vertices[i] *= cavity;
+			float dist = FVector::Dist(vertices[i], center);
+			float x = dist / CraterRadius;
+			UE_LOG(LogTemp, Log, TEXT("%f %f"), dist, x);
+			heights[i] = x;
 
-
-			UE_LOG(LogTemp, Log, TEXT("x: %f"), x);
 		}
-		//if (FVector::Dist(vertices[i], center) < CraterRadius)
 		//{
 		//	float x = (vertices[i] - center).Size() / CraterRadius;
 		//	float cavity = x * x - 1;
@@ -156,7 +168,15 @@ void APlanetGenerator::GenerateCubeMesh()
 		//	vertices[i] *= SmoothMin(craterShape, rim, Smoothness);
 		//}
 	}
-	 */
+
+
+	for(int i = 0; i < vertices.Num(); ++i)
+	{
+		vertices[i] *= heights[i];
+	}
+	*/
+
+
 
 	TArray<FVector> normals;
 	normals.Init(FVector::ZeroVector, vertices.Num());
