@@ -19,7 +19,8 @@ public:
 	float BiomePercentFromPoint(const FVector& pointOnSphere);
 	float BiomeIndexFromPoint(const FVector& pointOnSphere);
 
-	FColor GetColorFromPoint(float biomeIndex, float value, float min, float max);
+	FColor GetColor(float biomeIndex, float value, float min, float max);
+	FColor GetColorFromPoint(FVector pointOnSphere, float value, float min, float max);
 
 protected:
 	UPROPERTY(EditAnywhere)
