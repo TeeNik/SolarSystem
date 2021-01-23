@@ -31,19 +31,21 @@ void UColorGenerator::Init()
 
 		for (float j = 0; j < 1; j += 0.01f)
 		{
-
-			//switch (i)
-			//{
-			//case 1:
-			//	BiomColors[i * TextureSize + j * TextureSize] = FColor::Red;
-			//	continue;
-			//case 2:
-			//	BiomColors[i * TextureSize + j * TextureSize] = FColor::Black;
-			//	continue;
-			//case 3:
-			//	BiomColors[i * TextureSize + j * TextureSize] = FColor::Yellow;
-			//	continue;
-			//}
+			if(DebugBlending)
+			{
+				switch (i)
+				{
+				case 1:
+					BiomColors[i * TextureSize + j * TextureSize] = FColor::Green;
+					continue;
+				case 2:
+					BiomColors[i * TextureSize + j * TextureSize] = FColor::Black;
+					continue;
+				case 3:
+					BiomColors[i * TextureSize + j * TextureSize] = FColor::Yellow;
+					continue;
+				}
+			}
 
 			BiomColors[i * TextureSize + j * TextureSize] = FormatedImageData[static_cast<int>(Texture->GetSizeX() * j)];
 		}
@@ -95,17 +97,45 @@ float UColorGenerator::BiomeIndexFromPoint(const FVector& pointOnSphere)
 
 	for (int i = 0; i < Settings.Biomes.Num(); ++i)
 	{
-		if (Settings.Biomes[i].StartHeight < heightPercent)
+		if (heightPercent < Settings.Biomes[i].StartHeight)
 		{
-			biomeIndex = (int)Settings.Biomes[i].BiomeType;
-		}
-		else
-		{
-			break;
+			return (int)Settings.Biomes[i].BiomeType;
 		}
 	}
 	return biomeIndex;
 }
+
+
+
+FColor UColorGenerator::GetColorFromPoint(FVector pointOnSphere, float value, float min, float max)
+{
+	float heightPercent = (pointOnSphere.Z + 1) / 2.0f;
+	heightPercent += (NoiseFilter->Evaluate(pointOnSphere) - Settings.NoiseOffset) * Settings.NoiseStrength;
+	int numOfBiomes = Settings.Biomes.Num();
+	float blendRange = Settings.BlendAmount + .001f;
+
+	heightPercent = FMath::Clamp(heightPercent, 0.0f, 1.0f);
+
+	//UE_LOG(LogTemp, Log, TEXT("value min max %f %f %f"), value, min, max);
+
+	for (int i = 0; i < numOfBiomes; ++i)
+	{
+		if(heightPercent < Settings.Biomes[i].StartHeight)
+		{
+			if(heightPercent > Settings.Biomes[i].StartHeight - blendRange && i < numOfBiomes - 1)
+			{
+				FLinearColor current = GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
+				FLinearColor next = GetColor((float)Settings.Biomes[i+1].BiomeType, value, min, max);
+				float blendValue = UKismetMathLibrary::NormalizeToRange(heightPercent, Settings.Biomes[i].StartHeight - blendRange, Settings.Biomes[i].StartHeight);
+				FLinearColor result = current * (1 - blendValue) + next * blendValue;
+				return result.ToFColor(true);
+			}
+			return GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
+		}
+	}
+	return FColor::White;
+}
+
 
 /*
 FColor UColorGenerator::GetColorFromPoint(FVector pointOnSphere, float value, float min, float max)
@@ -135,28 +165,42 @@ FColor UColorGenerator::GetColorFromPoint(FVector pointOnSphere, float value, fl
 	{
 		if (i == numOfBiomes - 1 && Settings.Biomes[i].StartHeight < heightPercent || i < numOfBiomes - 1 && Settings.Biomes[i+1].StartHeight > heightPercent && Settings.Biomes[i].StartHeight <= heightPercent)
 		{
-			if (i < numOfBiomes - 1 && heightPercent > Settings.Biomes[i + 1].StartHeight - blendRange)
+			if (i < numOfBiomes)
 			{
-				//blend current and next	
+				int nextIndex = i == numOfBiomes - 1 ? 0 : i + 1;
+				if(heightPercent > Settings.Biomes[nextIndex].StartHeight - blendRange)
+				{
+					//blend current and next	
+					FLinearColor current = GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
+					FLinearColor next = GetColor((float)Settings.Biomes[nextIndex].BiomeType, value, min, max);
+
+					float blendValue = UKismetMathLibrary::NormalizeToRange(heightPercent, Settings.Biomes[nextIndex].StartHeight - blendRange, Settings.Biomes[nextIndex].StartHeight + blendRange);
+					FLinearColor result = current * (1 - blendValue) + next * blendValue;
+					return DebugBlendingRange ? FColor::Red : result.ToFColor(true);
+					return result.ToFColor(true);
+				}
+		
+			}
+			if (i >= 0 && heightPercent < Settings.Biomes[i].StartHeight + blendRange)
+			{
+				//blend current and prev
 				FLinearColor current = GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
-				FLinearColor next = GetColor((float)Settings.Biomes[i+1].BiomeType, value, min, max);
-				float blendValue = UKismetMathLibrary::NormalizeToRange(heightPercent, Settings.Biomes[i + 1].StartHeight - blendRange, Settings.Biomes[i + 1].StartHeight + blendRange);
-				UE_LOG(LogTemp, Log, TEXT("%f"), blendValue);
-				FLinearColor result = current * (1-blendValue) + next * blendValue;
-				//return FColor::Red;
+				FLinearColor prev;
+				
+				if(i == 0)
+				{
+					prev = GetColor((float)Settings.Biomes[numOfBiomes - 1].BiomeType, value, min, max);;
+				} 
+				else
+				{
+					prev = GetColor((float)Settings.Biomes[i - 1].BiomeType, value, min, max);
+				}
+				
+				float blendValue = UKismetMathLibrary::NormalizeToRange(heightPercent, Settings.Biomes[i].StartHeight - blendRange, Settings.Biomes[i].StartHeight + blendRange);
+				FLinearColor result = current * blendValue + prev * (1 - blendValue);
+				return DebugBlendingRange ? FColor::Blue : result.ToFColor(true);
 				return result.ToFColor(true);
 			}
-			//if (i > 0 && heightPercent < Settings.Biomes[i].StartHeight + blendRange)
-			//{
-			//	//blend current and prev
-			//	FLinearColor current = GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
-			//	FLinearColor prev = GetColor((float)Settings.Biomes[i - 1].BiomeType, value, min, max);
-			//	float blendValue = UKismetMathLibrary::NormalizeToRange(heightPercent, Settings.Biomes[i].StartHeight - blendRange, Settings.Biomes[i].StartHeight + blendRange);
-			//	FLinearColor result = current * (1 - blendValue) + prev * blendValue;
-			//	//return FColor::Blue;
-			//	return result.ToFColor(true);
-			//}
-			//return current
 			return GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
 		}
 	}

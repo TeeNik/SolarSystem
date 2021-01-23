@@ -33,6 +33,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TArray<class UTexture2D*> BiomTextures;
 
+	UPROPERTY(EditAnywhere)
+	bool DebugBlendingRange;
+	UPROPERTY(EditAnywhere)
+	bool DebugBlending;
+
 private:
 	TArray<FColor> BiomColors;
 	int TextureSize = 100;
