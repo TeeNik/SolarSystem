@@ -68,7 +68,9 @@ void APlanetGenerator::GenerateCubeMesh()
 	uv.Init(FVector2D::ZeroVector, planetMeshData->Vertices.Num());
 
 	TArray<FVector2D> cloudUV;
-	cloudUV.Init(FVector2D::ZeroVector, planetMeshData->Vertices.Num());
+	cloudUV.Init(FVector2D::ZeroVector, cloudMeshData->Vertices.Num());
+
+	TArray<FVector> spherePoints = planetMeshData->Vertices;
 
 	for (int i = 0; i < planetMeshData->Vertices.Num(); ++i)
 	{
@@ -93,9 +95,11 @@ void APlanetGenerator::GenerateCubeMesh()
 		float biomIndex = uv[i].Y;
 		float min = biomIndex > 0 ? 0 : ShapeGenerator->MinMax.Key;
 		float max = biomIndex > 0 ? ShapeGenerator->MinMax.Value : 0;
-	
-		//colors[i] = ColorGenerator->GetColorFromPoint(spherePoints[i],  uv[i].X, min, max);
-		colors[i] = ColorGenerator->GetColor(biomIndex,  uv[i].X, min, max);
+		//UE_LOG(LogTemp, Log, TEXT("biom %f %f %f %f"), biomIndex, min, max, uv[i].X);
+		if(biomIndex > 0)
+			colors[i] = ColorGenerator->GetColorFromPoint(spherePoints[i], uv[i].X, min, max);
+		else 
+			colors[i] = ColorGenerator->GetColor(biomIndex,  uv[i].X, min, max);
 	}
 
 	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
@@ -104,8 +108,9 @@ void APlanetGenerator::GenerateCubeMesh()
 	Mesh->CreateMeshSection_LinearColor(0, planetMeshData->Vertices, planetMeshData->Triangles, planetMeshData->Normals, uv, colors, TArray<FProcMeshTangent>(), true);
 	Mesh->SetMaterial(0, dynamicMaterial);
 
-	CloudMesh->CreateMeshSection_LinearColor(0, planetMeshData->Vertices, planetMeshData->Triangles, planetMeshData->Normals, cloudUV, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
+	CloudMesh->CreateMeshSection_LinearColor(0, cloudMeshData->Vertices, cloudMeshData->Triangles, cloudMeshData->Normals, cloudUV, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 	CloudMesh->SetMaterial(0, CloudMaterial);
+	CloudMesh->SetRelativeScale3D(FVector(1.05f));
 
 	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }
