@@ -95,11 +95,7 @@ void APlanetGenerator::GenerateCubeMesh()
 		float biomIndex = uv[i].Y;
 		float min = biomIndex > 0 ? 0 : ShapeGenerator->MinMax.Key;
 		float max = biomIndex > 0 ? ShapeGenerator->MinMax.Value : 0;
-		//UE_LOG(LogTemp, Log, TEXT("biom %f %f %f %f"), biomIndex, min, max, uv[i].X);
-		if(biomIndex > 0)
-			colors[i] = ColorGenerator->GetColorFromPoint(spherePoints[i], uv[i].X, min, max);
-		else 
-			colors[i] = ColorGenerator->GetColor(biomIndex,  uv[i].X, min, max);
+		colors[i] = ColorGenerator->GetColorFromPoint(spherePoints[i], uv[i].X, min, max);
 	}
 
 	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
@@ -110,7 +106,7 @@ void APlanetGenerator::GenerateCubeMesh()
 
 	CloudMesh->CreateMeshSection_LinearColor(0, cloudMeshData->Vertices, cloudMeshData->Triangles, cloudMeshData->Normals, cloudUV, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 	CloudMesh->SetMaterial(0, CloudMaterial);
-	CloudMesh->SetRelativeScale3D(FVector(1.05f));
+	CloudMesh->SetRelativeScale3D(FVector(CloudsHeight));
 
 	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }

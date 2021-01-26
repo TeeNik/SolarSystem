@@ -38,10 +38,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UShapeGenerator* CloudGenerator;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<float> Clouds;
 	UPROPERTY(EditAnywhere)
 	UMaterialInterface* CloudMaterial;
+	UPROPERTY(EditAnywhere)
+	float CloudsHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Resolution = 32;

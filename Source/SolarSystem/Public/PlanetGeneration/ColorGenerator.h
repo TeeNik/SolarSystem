@@ -16,7 +16,6 @@ public:
 	UColorGenerator();
 
 	void Init();
-	float BiomePercentFromPoint(const FVector& pointOnSphere);
 	float BiomeIndexFromPoint(const FVector& pointOnSphere);
 
 	FColor GetColor(float biomeIndex, float value, float min, float max);
