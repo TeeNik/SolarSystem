@@ -81,11 +81,13 @@ void APlanetGenerator::GenerateCubeMesh()
 		int biomeIndex = unscaledElevation > 0 ? ColorGenerator->BiomeIndexFromPoint(pointOnUnitSphere) : 0;
 		uv[i] = FVector2D(unscaledElevation, biomeIndex);
 
+		cloudMeshData->Vertices[i] *= CloudGenerator->CalculateScaledElevation(0);
 		float clouds = CloudGenerator->CalculateUnscaledElevation(pointOnUnitSphere);
 		cloudUV[i].Y = clouds;
 	}
 
 	planetMeshData->RecalculateNormals();
+	cloudMeshData->RecalculateNormals();
 
 	TArray<FLinearColor> colors;
 	colors.Init(FColor::White, planetMeshData->Vertices.Num());
@@ -106,7 +108,6 @@ void APlanetGenerator::GenerateCubeMesh()
 
 	CloudMesh->CreateMeshSection_LinearColor(0, cloudMeshData->Vertices, cloudMeshData->Triangles, cloudMeshData->Normals, cloudUV, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 	CloudMesh->SetMaterial(0, CloudMaterial);
-	CloudMesh->SetRelativeScale3D(FVector(CloudsHeight));
 
 	UE_LOG(LogTemp, Log, TEXT("Time spend: %d"), GetUnixTime() - startTime);
 }

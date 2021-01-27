@@ -40,8 +40,6 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UMaterialInterface* CloudMaterial;
-	UPROPERTY(EditAnywhere)
-	float CloudsHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Resolution = 32;
