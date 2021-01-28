@@ -47,10 +47,10 @@ float UColorGenerator::BiomeIndexFromPoint(const FVector& pointOnSphere)
 	float heightPercent = (pointOnSphere.Z + 1) / 2.0f;
 	heightPercent += (NoiseFilter->Evaluate(pointOnSphere) - Settings.NoiseOffset) * Settings.NoiseStrength;
 	int biomeIndex = 0;
-
+	heightPercent = FMath::Clamp(heightPercent, 0.0f, 1.0f);
 	for (int i = 0; i < Settings.Biomes.Num(); ++i)
 	{
-		if (heightPercent < Settings.Biomes[i].StartHeight)
+		if (heightPercent <= Settings.Biomes[i].StartHeight)
 		{
 			return (int)Settings.Biomes[i].BiomeType;
 		}
@@ -67,14 +67,14 @@ FColor UColorGenerator::GetColorFromPoint(FVector pointOnSphere, float value, fl
 
 	heightPercent = FMath::Clamp(heightPercent, 0.0f, 1.0f);
 
-	if(value < 0)
+	if(value <= 0)
 	{
 		return GetColor((float)BiomeType::Ocean, value, min, max);
 	}
 
 	for (int i = 0; i < numOfBiomes; ++i)
 	{
-		if(heightPercent < Settings.Biomes[i].StartHeight)
+		if(heightPercent <= Settings.Biomes[i].StartHeight)
 		{
 			if(heightPercent > Settings.Biomes[i].StartHeight - blendRange && i < numOfBiomes - 1)
 			{
@@ -87,7 +87,7 @@ FColor UColorGenerator::GetColorFromPoint(FVector pointOnSphere, float value, fl
 			return GetColor((float)Settings.Biomes[i].BiomeType, value, min, max);
 		}
 	}
-	return FColor::White;
+	return FColor::Purple;
 }
 
 FColor UColorGenerator::GetColor(float biomeIndex, float value, float min, float max)
